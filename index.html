@@ -418,6 +418,7 @@ function render(){
     <header>
       <h1>Pul yig'ish</h1>
       <p class="subtitle">${total} kishi ro'yxatda · ${paidCount} tasi to'ladi</p>
+      <button onclick="resetToDefaults()" style="margin-top:8px;border:none;background:none;color:var(--ink-soft);font-size:12px;text-decoration:underline;cursor:pointer;padding:0;">Ro'yxatni asl holatga qaytarish</button>
     </header>
 
     <div class="card">
@@ -449,7 +450,15 @@ function render(){
   }
 }
 
-function startEditTarget(){
+function resetToDefaults(){
+  if(!confirm("Ro'yxatni asl 35 ta ismga qaytarasizmi? Hozirgi belgilashlar (kim to'lagani) yo'qoladi.")) return;
+  data = {
+    target: data.target,
+    people: DEFAULT_NAMES.map((name, i) => ({ id: 'p' + i, name: name, paid: false }))
+  };
+  saveData();
+  render();
+}
   editingTarget = true;
   render();
 }
