@@ -8,6 +8,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+window.onerror = function(msg, url, line, col, error){
+  var app = document.getElementById('app');
+  if(app){
+    app.innerHTML = '<div style="padding:20px;color:#A24630;font-family:monospace;font-size:13px;white-space:pre-wrap;">Xatolik chiqdi:\n\n' + msg + '\n\nQator: ' + line + '</div>';
+  }
+};
+</script>
 <style>
   :root{
     --bg:#F3F6EF;
