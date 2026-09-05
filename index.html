@@ -315,15 +315,23 @@ function tgSet(key, value){
   });
 }
 
+function timeout(ms){
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function loadData(){
   const forceReset = new URLSearchParams(window.location.search).has('reset');
   try{
     if(!forceReset){
       if(inTelegram){
-        const value = await tgGet(STORAGE_KEY);
-        if(value) data = JSON.parse(value);
+        await Promise.race([
+          (async () => {
+            const value = await tgGet(STORAGE_KEY);
+            if(value) data = JSON.parse(value);
+          })(),
+          timeout(4000)
+        ]);
       } else if(window.storage){
-        // Claude ichida ko'rib chiqish uchun zaxira variant
         const res = await window.storage.get(STORAGE_KEY, false);
         if(res && res.value) data = JSON.parse(res.value);
       }
@@ -331,11 +339,11 @@ async function loadData(){
   }catch(e){
     // birinchi marta ishlatilmoqda, standart qiymat qoladi
   }
-  if(forceReset){
-    await saveData();
-  }
   loaded = true;
   render();
+  if(forceReset){
+    saveData();
+  }
 }
 
 async function saveData(){
@@ -459,6 +467,8 @@ function resetToDefaults(){
   saveData();
   render();
 }
+
+function startEditTarget(){
   editingTarget = true;
   render();
 }
