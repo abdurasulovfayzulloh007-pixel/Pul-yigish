@@ -384,6 +384,9 @@ function togglePaid(id){
 }
 
 function deletePerson(id){
+  const p = data.people.find(p => p.id === id);
+  const name = p ? p.name : "bu odam";
+  if(!confirm(name + " ro'yxatdan rostan ham o'chirilsinmi?")) return;
   data.people = data.people.filter(p => p.id !== id);
   saveData();
   render();
