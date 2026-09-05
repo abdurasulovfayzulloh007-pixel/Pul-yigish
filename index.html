@@ -276,7 +276,516 @@
 
 <script>
 const STORAGE_KEY = 'yigim-data';
-let data = { target: 50000, people: [] };
+const DEFAULT_NAMES = [
+  "Mavzunaxon","Solihabonu","Qudratjon","Muxarramoy","Fayzulloh","Gulira'no",
+  "Maxfiratoy","Mavludaxon","Farzonaxon","Muhammadali","Nafisaxon","Barhayotjon",
+  "Zilolaxon","Rayhona","Zilolaxon","Mohinur","Kumushbibi","Robiyaxon","Mohlaroy",
+  "Muhammaddiyor","Mubinaxon","Abubakr","Saidolimxon","Abdulbori","Abduqahhor",
+  "Abdusalom","Abdurahmon","Bibisora","Muhammadsaid","Oyazimxon","Muslimaxon",
+  "Zuhriddin","Solihabonu","Muazina","Muhammadaziz"
+];
+let data = {
+  target: 50000,
+  people: DEFAULT_NAMES.map((name, i) => ({
+    id: 'p' + i,
+    name: name,
+    paid: false
+  }))
+};
+let editingTarget = false;
+let loaded = false;
+
+const inTelegram = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage);
+
+if(window.Telegram && window.Telegram.WebApp){
+  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
+}
+
+function tgGet(key){
+  return new Promise((resolve) => {
+    window.Telegram.WebApp.CloudStorage.getItem(key, (err, value) => {
+      resolve(err ? null : value);
+    });
+  });
+}
+function tgSet(key, value){
+  return new Promise((resolve) => {
+    window.Telegram.WebApp.CloudStorage.setItem(key, value, () => resolve());
+  });
+}
+
+async function loadData(){
+  try{
+    if(inTelegram){
+      const value = await tgGet(STORAGE_KEY);
+      if(value) data = JSON.parse(value);
+    } else if(window.storage){
+      // Claude ichida ko'rib chiqish uchun zaxira variant
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if(res && res.value) data = JSON.parse(res.value);
+    }
+  }catch(e){
+    // birinchi marta ishlatilmoqda, standart qiymat qoladi
+  }
+  loaded = true;
+  render();
+}
+
+async function saveData(){
+  try{
+    if(inTelegram){
+      await tgSet(STORAGE_KEY, JSON.stringify(data));
+    } else if(window.storage){
+      await window.storage.set(STORAGE_KEY, JSON.stringify(data), false);
+    }
+  }catch(e){
+    console.error('Saqlashda xatolik', e);
+  }
+}
+
+function formatSum(n){
+  return Number(n || 0).toLocaleString('ru-RU').replace(/,/g,' ') + " so'm";
+}
+
+function addPerson(name){
+  const trimmed = name.trim();
+  if(!trimmed) return;
+  data.people.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), name: trimmed, paid: false });
+  saveData();
+  render();
+}
+
+function togglePaid(id){
+  const p = data.people.find(p => p.id === id);
+  if(p){ p.paid = !p.paid; saveData(); render(); }
+}
+
+function deletePerson(id){
+  data.people = data.people.filter(p => p.id !== id);
+  saveData();
+  render();
+}
+
+function setTarget(val){
+  const n = parseInt(val, 10);
+  data.target = isNaN(n) || n < 0 ? 0 : n;
+  saveData();
+  editingTarget = false;
+  render();
+}
+
+function render(){
+  const app = document.getElementById('app');
+  if(!loaded){
+    app.innerHTML = '<div class="loading">Yuklanmoqda...</div>';
+    return;
+  }
+
+  const total = data.people.length;
+  const paidCount = data.people.filter(p => p.paid).length;
+  const collected = paidCount * data.target;
+  const targetSum = total * data.target;
+  const pct = targetSum > 0 ? Math.min(100, Math.round((collected/targetSum)*100)) : 0;
+
+  const peopleHtml = data.people.length === 0
+    ? '<div class="empty">Hali odam qo\'shilmagan.<br>Pastdan ism kiriting.</div>'
+    : data.people.map(p => `
+      <div class="person ${p.paid ? 'paid' : ''}">
+        <div class="person-left">
+          <span class="person-name">${escapeHtml(p.name)}</span>
+        </div>
+        <div style="display:flex;align-items:center;">
+          <button class="status-btn ${p.paid ? 'paid' : 'pending'}" onclick="togglePaid('${p.id}')">${p.paid ? "✓ To'ladi" : "To'lamadi"}</button>
+          <button class="delete-btn" onclick="deletePerson('${p.id}')" aria-label="O'chirish">×</button>
+        </div>
+      </div>
+    `).join('');
+
+  const targetHtml = editingTarget
+    ? `<div class="target-value"><input id="targetInput" type="number" inputmode="numeric" value="${data.target}" autofocus></div>
+       <button class="edit-btn" onclick="confirmTarget()">Saqlash</button>`
+    : `<div class="target-value">${formatSum(data.target)}</div>
+       <button class="edit-btn" onclick="startEditTarget()">O'zgartirish</button>`;
+
+  app.innerHTML = `
+    <header>
+      <h1>Pul yig'ish</h1>
+      <p class="subtitle">${total} kishi ro'yxatda · ${paidCount} tasi to'ladi</p>
+    </header>
+
+    <div class="card">
+      <div class="target-row">
+        <div>
+          <div class="target-label">Har kimdan yig'iladigan summa</div>
+        </div>
+      </div>
+      <div class="target-row" style="margin-top:8px;">
+        ${targetHtml}
+      </div>
+    </div>
+
+    <div class="card progress-card">
+      <div class="progress-top">
+        <div class="progress-sum">${formatSum(collected)} <span class="of">/ ${formatSum(targetSum)}</span></div>
+        <div class="progress-people">${pct}%</div>
+      </div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+    </div>
+
+    <div class="list-label">Odamlar ro'yxati</div>
+    <div id="peopleList">${peopleHtml}</div>
+  `;
+
+  if(editingTarget){
+    const input = document.getElementById('targetInput');
+    input.addEventListener('keydown', (e) => { if(e.key === 'Enter') confirmTarget(); });
+  }
+}
+
+function startEditTarget(){
+  editingTarget = true;
+  render();
+}
+function confirmTarget(){
+  const input = document.getElementById('targetInput');
+  setTarget(input.value);
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadData();
+
+  const observer = new MutationObserver(() => {
+    const addInput = document.getElementById('addPersonInput');
+    // no-op, add bar is static below
+  });
+});
+</script>
+
+<div class="add-bar">
+  <div class="add-bar-inner">
+    <input id="addPersonInput" type="text" placeholder="Ism kiriting..." maxlength="40">
+    <button class="add-btn" id="addBtn">Qo'shish</button>
+  </div>
+</div>
+
+<script>
+const input = document.getElementById('addPersonInput');
+const btn = document.getElementById('addBtn');
+btn.addEventListener('click', () => {
+  addPerson(input.value);
+  input.value = '';
+  input.focus();
+});
+input.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    addPerson(input.value);
+    input.value = '';
+  }
+});
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Pul yig'ish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root{
+    --bg:#F3F6EF;
+    --surface:#FFFFFF;
+    --ink:#1E2B22;
+    --ink-soft:#5C6B5F;
+    --gold:#B98A2E;
+    --gold-soft:#F1E3C4;
+    --paid:#3E7A52;
+    --paid-soft:#E3F0E6;
+    --pending:#A24630;
+    --pending-soft:#F6E4DE;
+    --border:#DCE3D6;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    width:100%;
+    max-width:460px;
+    min-height:100vh;
+    background:var(--bg);
+    display:flex;
+    flex-direction:column;
+    padding:22px 16px 100px;
+  }
+  header{
+    margin-bottom:18px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:28px;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    color:var(--ink-soft);
+    font-size:14px;
+    margin:0;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:14px;
+  }
+
+  .target-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .target-label{
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .target-value{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    font-weight:500;
+    color:var(--gold);
+    display:flex;
+    align-items:baseline;
+    gap:4px;
+  }
+  .target-value input{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    font-weight:500;
+    color:var(--gold);
+    border:none;
+    background:transparent;
+    width:120px;
+    text-align:right;
+    outline:none;
+    border-bottom:1px solid var(--gold);
+  }
+  .edit-btn{
+    border:none;
+    background:var(--gold-soft);
+    color:var(--gold);
+    font-size:13px;
+    font-weight:600;
+    padding:7px 12px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .edit-btn:active{opacity:0.7;}
+
+  .progress-card{padding:16px;}
+  .progress-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:8px;
+  }
+  .progress-sum{
+    font-family:'Fraunces',serif;
+    font-size:19px;
+    font-weight:500;
+  }
+  .progress-sum .of{
+    font-size:14px;
+    color:var(--ink-soft);
+    font-weight:400;
+    font-family:'Inter',sans-serif;
+  }
+  .progress-people{
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .bar{
+    height:8px;
+    background:var(--border);
+    border-radius:5px;
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    background:var(--paid);
+    border-radius:5px;
+    transition:width 0.4s ease;
+  }
+
+  .list-label{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:6px 2px 8px;
+  }
+
+  .person{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px 12px 12px 14px;
+    margin-bottom:8px;
+    border-left:4px solid var(--pending);
+    transition:border-color 0.2s ease;
+  }
+  .person.paid{
+    border-left-color:var(--paid);
+  }
+  .person-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+  }
+  .person-name{
+    font-size:15px;
+    font-weight:500;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .status-btn{
+    border:none;
+    font-size:13px;
+    font-weight:600;
+    padding:7px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .status-btn.pending{
+    background:var(--pending-soft);
+    color:var(--pending);
+  }
+  .status-btn.paid{
+    background:var(--paid-soft);
+    color:var(--paid);
+  }
+  .status-btn:active{opacity:0.7;}
+  .delete-btn{
+    border:none;
+    background:none;
+    color:var(--ink-soft);
+    font-size:18px;
+    cursor:pointer;
+    padding:0 0 0 8px;
+    line-height:1;
+    flex-shrink:0;
+  }
+
+  .empty{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:14px;
+    padding:28px 10px;
+  }
+
+  .add-bar{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    display:flex;
+    justify-content:center;
+    padding:12px 16px;
+    background:linear-gradient(to top, var(--bg) 70%, transparent);
+  }
+  .add-bar-inner{
+    width:100%;
+    max-width:460px;
+    display:flex;
+    gap:8px;
+  }
+  .add-bar input{
+    flex:1;
+    border:1px solid var(--border);
+    background:var(--surface);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:15px;
+    font-family:'Inter',sans-serif;
+    outline:none;
+    color:var(--ink);
+  }
+  .add-bar input:focus{
+    border-color:var(--gold);
+  }
+  .add-btn{
+    border:none;
+    background:var(--ink);
+    color:var(--bg);
+    font-size:14px;
+    font-weight:600;
+    padding:0 18px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .add-btn:active{opacity:0.8;}
+  .add-btn:disabled{
+    opacity:0.4;
+    cursor:default;
+  }
+
+  .loading{
+    text-align:center;
+    color:var(--ink-soft);
+    padding:60px 0;
+    font-size:14px;
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="loading" id="loading">Yuklanmoqda...</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'yigim-data';
+const DEFAULT_NAMES = [
+  "Mavzunaxon","Solihabonu","Qudratjon","Muxarramoy","Fayzulloh","Gulira'no",
+  "Maxfiratoy","Mavludaxon","Farzonaxon","Muhammadali","Nafisaxon","Barhayotjon",
+  "Zilolaxon","Rayhona","Zilolaxon","Mohinur","Kumushbibi","Robiyaxon","Mohlaroy",
+  "Muhammaddiyor","Mubinaxon","Abubakr","Saidolimxon","Abdulbori","Abduqahhor",
+  "Abdusalom","Abdurahmon","Bibisora","Muhammadsaid","Oyazimxon","Muslimaxon",
+  "Zuhriddin","Solihabonu","Muazina","Muhammadaziz"
+];
+let data = {
+  target: 50000,
+  people: DEFAULT_NAMES.map((name, i) => ({
+    id: 'p' + i,
+    name: name,
+    paid: false
+  }))
+};
 let editingTarget = false;
 let loaded = false;
 
