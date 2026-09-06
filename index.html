@@ -6,29 +6,30 @@
 <title>Pul yig'ish</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 window.onerror = function(msg, url, line, col, error){
   var app = document.getElementById('app');
   if(app){
-    app.innerHTML = '<div style="padding:20px;color:#A24630;font-family:monospace;font-size:13px;white-space:pre-wrap;">Xatolik chiqdi:\n\n' + msg + '\n\nQator: ' + line + '</div>';
+    app.innerHTML = '<div style="padding:20px;color:#E2685A;font-family:monospace;font-size:13px;white-space:pre-wrap;">Xatolik chiqdi:\n\n' + msg + '\n\nQator: ' + line + '</div>';
   }
 };
 </script>
 <style>
   :root{
-    --bg:#F3F6EF;
-    --surface:#FFFFFF;
-    --ink:#1E2B22;
-    --ink-soft:#5C6B5F;
-    --gold:#B98A2E;
-    --gold-soft:#F1E3C4;
-    --paid:#3E7A52;
-    --paid-soft:#E3F0E6;
-    --pending:#A24630;
-    --pending-soft:#F6E4DE;
-    --border:#DCE3D6;
+    --bg:#15171B;
+    --surface:#1D2024;
+    --surface-2:#262A31;
+    --ink:#ECEEF1;
+    --ink-soft:#8B929C;
+    --gold:#D9AD5C;
+    --gold-soft:rgba(217,173,92,0.15);
+    --paid:#4FBF8B;
+    --paid-soft:rgba(79,191,139,0.15);
+    --pending:#E2685A;
+    --pending-soft:rgba(226,104,90,0.15);
+    --border:#2B2F36;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -48,70 +49,55 @@ window.onerror = function(msg, url, line, col, error){
     background:var(--bg);
     display:flex;
     flex-direction:column;
-    padding:22px 16px 100px;
+    padding:24px 16px 108px;
   }
-  header{margin-bottom:16px;}
+
+  header{margin-bottom:18px;}
   h1{
     font-family:'Fraunces',serif;
     font-weight:600;
-    font-size:28px;
-    margin:0 0 4px;
+    font-size:29px;
+    margin:0 0 5px;
     letter-spacing:-0.01em;
+    color:var(--ink);
   }
-  .subtitle{color:var(--ink-soft);font-size:14px;margin:0;}
-  .reset-link{
-    margin-top:8px;border:none;background:none;color:var(--ink-soft);
-    font-size:12px;text-decoration:underline;cursor:pointer;padding:0;
+  .subtitle{color:var(--ink-soft);font-size:14px;margin:0;font-variant-numeric:tabular-nums;}
+  .header-links{display:flex;gap:16px;margin-top:10px;}
+  .link-btn{
+    border:none;background:none;color:var(--ink-soft);font-size:12.5px;
+    text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:0;
   }
 
   .tabs-row{
-    display:flex;
-    gap:8px;
-    overflow-x:auto;
-    padding:2px 2px 10px;
-    -webkit-overflow-scrolling:touch;
+    display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;-webkit-overflow-scrolling:touch;
   }
   .tabs-row::-webkit-scrollbar{display:none;}
   .tab-btn{
-    flex-shrink:0;
-    border:1px solid var(--border);
-    background:var(--surface);
-    color:var(--ink-soft);
-    font-size:14px;
-    font-weight:600;
-    padding:9px 16px;
-    border-radius:999px;
-    cursor:pointer;
-    white-space:nowrap;
+    flex-shrink:0;border:1px solid var(--border);background:var(--surface);color:var(--ink-soft);
+    font-size:14px;font-weight:600;padding:9px 16px;border-radius:999px;cursor:pointer;
+    white-space:nowrap;font-variant-numeric:tabular-nums;
   }
-  .tab-btn.active{
-    background:var(--ink);
-    color:var(--bg);
-    border-color:var(--ink);
-  }
-  .tab-btn.add-tab{
-    background:var(--gold-soft);
-    color:var(--gold);
-    border-color:var(--gold-soft);
-  }
+  .tab-btn.active{background:var(--gold);color:#231A0B;border-color:var(--gold);}
+  .tab-btn.add-tab{background:transparent;color:var(--gold);border:1px dashed var(--gold);}
 
   .card{
     background:var(--surface);
     border:1px solid var(--border);
-    border-radius:14px;
-    padding:16px;
+    border-radius:18px;
+    padding:18px;
     margin-bottom:14px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.25);
   }
 
   .target-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
   .target-label{font-size:13px;color:var(--ink-soft);}
   .target-value{
-    font-family:'Fraunces',serif;font-size:22px;font-weight:500;color:var(--gold);
-    display:flex;align-items:baseline;gap:4px;
+    font-family:'Fraunces',serif;font-size:24px;font-weight:600;color:var(--gold);
+    display:flex;align-items:baseline;gap:4px;font-variant-numeric:tabular-nums;
   }
   .target-value input{
-    font-family:'Fraunces',serif;font-size:22px;font-weight:500;color:var(--gold);
-    border:none;background:transparent;width:120px;text-align:right;outline:none;
+    font-family:'Fraunces',serif;font-size:24px;font-weight:600;color:var(--gold);
+    border:none;background:transparent;width:130px;text-align:right;outline:none;
     border-bottom:1px solid var(--gold);
   }
   .btn-row{display:flex;gap:8px;}
@@ -125,33 +111,48 @@ window.onerror = function(msg, url, line, col, error){
   }
   .edit-btn:active,.remove-campaign-btn:active{opacity:0.7;}
 
-  .progress-card{padding:16px;}
-  .progress-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
-  .progress-sum{font-family:'Fraunces',serif;font-size:19px;font-weight:500;}
-  .progress-sum .of{font-size:14px;color:var(--ink-soft);font-weight:400;font-family:'Inter',sans-serif;}
+  .progress-card{padding:18px;}
+  .progress-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+  .progress-sum{font-family:'Fraunces',serif;font-size:19px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .progress-sum .of{font-size:13px;color:var(--ink-soft);font-weight:400;font-family:'Inter',sans-serif;}
   .progress-people{font-size:13px;color:var(--ink-soft);}
-  .bar{height:8px;background:var(--border);border-radius:5px;overflow:hidden;}
-  .bar-fill{height:100%;background:var(--paid);border-radius:5px;transition:width 0.4s ease;}
+  .bar{height:8px;background:var(--surface-2);border-radius:5px;overflow:hidden;}
+  .bar-fill{height:100%;background:linear-gradient(90deg,#3AA476,var(--paid));border-radius:5px;transition:width 0.4s ease;}
+
+  .report-row{
+    display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);
+  }
+  .report-row:last-of-type{border-bottom:none;}
+  .report-row .rname{font-weight:600;font-size:14px;}
+  .report-row .rsub{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .report-row .rval{font-family:'Fraunces',serif;font-size:15px;color:var(--gold);font-variant-numeric:tabular-nums;}
+  .report-total{
+    display:flex;justify-content:space-between;align-items:baseline;padding-top:12px;margin-top:2px;
+  }
+  .report-total .label{font-weight:700;font-size:15px;}
+  .report-total .value{font-family:'Fraunces',serif;font-size:19px;font-weight:600;color:var(--paid);font-variant-numeric:tabular-nums;}
+  .report-total .value .of{font-size:13px;color:var(--ink-soft);font-weight:400;font-family:'Inter',sans-serif;}
 
   .search-wrap{margin-bottom:10px;}
   .search-input{
-    width:100%;border:1px solid var(--border);background:var(--surface);border-radius:10px;
-    padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;color:var(--ink);
+    width:100%;border:1px solid var(--border);background:var(--surface);border-radius:12px;
+    padding:12px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;color:var(--ink);
   }
+  .search-input::placeholder{color:var(--ink-soft);}
   .search-input:focus{border-color:var(--gold);}
 
   .list-label{font-size:13px;color:var(--ink-soft);margin:6px 2px 8px;display:flex;justify-content:space-between;}
 
   .person{
-    display:flex;align-items:center;justify-content:space-between;background:var(--surface);
-    border:1px solid var(--border);border-radius:12px;padding:12px 12px 12px 14px;margin-bottom:8px;
-    border-left:4px solid var(--pending);transition:border-color 0.2s ease;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:13px 4px;border-bottom:1px solid var(--border);
   }
-  .person.paid{border-left-color:var(--paid);}
   .person-left{display:flex;align-items:center;gap:10px;min-width:0;}
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--pending);}
+  .dot.paid{background:var(--paid);}
   .person-name{font-size:15px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .status-btn{
-    border:none;font-size:13px;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;
+    border:none;font-size:13px;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer;
     white-space:nowrap;flex-shrink:0;
   }
   .status-btn.pending{background:var(--pending-soft);color:var(--pending);}
@@ -159,38 +160,37 @@ window.onerror = function(msg, url, line, col, error){
   .status-btn:active{opacity:0.7;}
   .delete-btn{
     border:none;background:none;color:var(--ink-soft);font-size:18px;cursor:pointer;
-    padding:0 0 0 8px;line-height:1;flex-shrink:0;
+    padding:0 0 0 6px;line-height:1;flex-shrink:0;
   }
 
   .empty{text-align:center;color:var(--ink-soft);font-size:14px;padding:28px 10px;}
 
-  .add-campaign-form{
-    display:flex;gap:8px;margin-bottom:14px;
-  }
+  .add-campaign-form{display:flex;gap:8px;margin-bottom:14px;}
   .add-campaign-form input{
-    flex:1;border:1px solid var(--gold);background:var(--surface);border-radius:10px;
+    flex:1;border:1px solid var(--gold);background:var(--surface);border-radius:12px;
     padding:10px 12px;font-size:14px;outline:none;color:var(--ink);
   }
   .add-campaign-form button{
-    border:none;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;
-    padding:0 14px;border-radius:10px;cursor:pointer;
+    border:none;background:var(--gold);color:#231A0B;font-size:13px;font-weight:700;
+    padding:0 16px;border-radius:12px;cursor:pointer;
   }
 
   .add-bar{
-    position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;padding:12px 16px;
-    background:linear-gradient(to top, var(--bg) 70%, transparent);
+    position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;padding:14px 16px;
+    background:linear-gradient(to top, var(--bg) 65%, transparent);
   }
   .add-bar-inner{width:100%;max-width:460px;display:flex;gap:8px;}
   .add-bar input{
-    flex:1;border:1px solid var(--border);background:var(--surface);border-radius:10px;
-    padding:12px 14px;font-size:15px;font-family:'Inter',sans-serif;outline:none;color:var(--ink);
+    flex:1;border:1px solid var(--border);background:var(--surface);border-radius:12px;
+    padding:13px 14px;font-size:15px;font-family:'Inter',sans-serif;outline:none;color:var(--ink);
   }
+  .add-bar input::placeholder{color:var(--ink-soft);}
   .add-bar input:focus{border-color:var(--gold);}
   .add-btn{
-    border:none;background:var(--ink);color:var(--bg);font-size:14px;font-weight:600;
-    padding:0 18px;border-radius:10px;cursor:pointer;
+    border:none;background:var(--gold);color:#231A0B;font-size:14px;font-weight:700;
+    padding:0 18px;border-radius:12px;cursor:pointer;
   }
-  .add-btn:active{opacity:0.8;}
+  .add-btn:active{opacity:0.85;}
 
   .loading{text-align:center;color:var(--ink-soft);padding:60px 0;font-size:14px;}
 </style>
@@ -223,6 +223,8 @@ const inTelegram = !!(window.Telegram && window.Telegram.WebApp && window.Telegr
 if(window.Telegram && window.Telegram.WebApp){
   window.Telegram.WebApp.ready();
   window.Telegram.WebApp.expand();
+  try{ window.Telegram.WebApp.setHeaderColor('#15171B'); }catch(e){}
+  try{ window.Telegram.WebApp.setBackgroundColor('#15171B'); }catch(e){}
 }
 
 function formatSum(n){
@@ -452,23 +454,23 @@ function render(){
     grandCollected += col;
     grandTarget += tgt;
     return `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div class="report-row">
         <div>
-          <div style="font-weight:600;font-size:14px;">${formatSum(c.amount)}</div>
-          <div style="font-size:12px;color:var(--ink-soft);">${paid}/${data.people.length} kishi to'ladi</div>
+          <div class="rname">${formatSum(c.amount)}</div>
+          <div class="rsub">${paid}/${data.people.length} kishi to'ladi</div>
         </div>
-        <div style="font-family:'Fraunces',serif;font-size:15px;color:var(--gold);">${formatSum(col)}</div>
+        <div class="rval">${formatSum(col)}</div>
       </div>
     `;
   }).join('');
 
   const statsHtml = showStats ? `
-    <div class="card" style="margin-bottom:14px;">
-      <div style="font-size:13px;color:var(--ink-soft);margin-bottom:8px;">Barcha turlar bo'yicha hisobot</div>
+    <div class="card">
+      <div style="font-size:13px;color:var(--ink-soft);margin-bottom:6px;">Barcha turlar bo'yicha hisobot</div>
       ${statsRows}
-      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:4px;">
-        <div style="font-weight:700;font-size:15px;">Jami yig'ildi</div>
-        <div style="font-family:'Fraunces',serif;font-size:19px;font-weight:600;color:var(--paid);">${formatSum(grandCollected)} <span style="font-size:13px;color:var(--ink-soft);font-weight:400;font-family:'Inter',sans-serif;">/ ${formatSum(grandTarget)}</span></div>
+      <div class="report-total">
+        <div class="label">Jami yig'ildi</div>
+        <div class="value">${formatSum(grandCollected)} <span class="of">/ ${formatSum(grandTarget)}</span></div>
       </div>
     </div>
   ` : '';
@@ -494,7 +496,6 @@ function render(){
     ? data.people.filter(p => p.name.toLowerCase().includes(q))
     : data.people.slice();
 
-  // To'lamaganlar tepada, to'laganlar pastda (har bir guruh ichida asl tartib saqlanadi)
   filteredPeople = filteredPeople
     .map((p, idx) => ({ p, idx, paid: !!paidSet[p.id] }))
     .sort((a, b) => (a.paid === b.paid ? a.idx - b.idx : (a.paid ? 1 : -1)))
@@ -507,8 +508,9 @@ function render(){
       : filteredPeople.map(p => {
         const isPaid = !!paidSet[p.id];
         return `
-        <div class="person ${isPaid ? 'paid' : ''}">
+        <div class="person">
           <div class="person-left">
+            <span class="dot ${isPaid ? 'paid' : ''}"></span>
             <span class="person-name">${escapeHtml(p.name)}</span>
           </div>
           <div style="display:flex;align-items:center;">
@@ -522,10 +524,10 @@ function render(){
   app.innerHTML = `
     <header>
       <h1>Pul yig'ish</h1>
-      <p class="subtitle">${total} kishi ro'yxatda · ${paidCount} tasi to'ladi (${formatSum(active.amount)} bo'yicha)</p>
-      <div style="display:flex;gap:14px;margin-top:8px;">
-        <button class="reset-link" onclick="toggleStats()">${showStats ? 'Hisobotni yopish' : 'Umumiy hisobot'}</button>
-        <button class="reset-link" onclick="resetToDefaults()">Ro'yxatni asl holatga qaytarish</button>
+      <p class="subtitle">${total} kishi ro'yxatda &middot; ${paidCount} tasi to'ladi (${formatSum(active.amount)} bo'yicha)</p>
+      <div class="header-links">
+        <button class="link-btn" onclick="toggleStats()">${showStats ? 'Hisobotni yopish' : 'Umumiy hisobot'}</button>
+        <button class="link-btn" onclick="resetToDefaults()">Ro'yxatni asl holatga qaytarish</button>
       </div>
     </header>
 
