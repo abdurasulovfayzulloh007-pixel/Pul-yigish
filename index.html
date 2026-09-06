@@ -18,18 +18,18 @@ window.onerror = function(msg, url, line, col, error){
 </script>
 <style>
   :root{
-    --bg:#15171B;
-    --surface:#1D2024;
-    --surface-2:#262A31;
-    --ink:#ECEEF1;
-    --ink-soft:#8B929C;
-    --gold:#D9AD5C;
-    --gold-soft:rgba(217,173,92,0.15);
-    --paid:#4FBF8B;
-    --paid-soft:rgba(79,191,139,0.15);
-    --pending:#E2685A;
-    --pending-soft:rgba(226,104,90,0.15);
-    --border:#2B2F36;
+    --bg:#16181C;
+    --surface:#1E2126;
+    --surface-2:#282C33;
+    --ink:#F3F4F6;
+    --ink-soft:#A6ACB6;
+    --gold:#E0B268;
+    --gold-soft:rgba(224,178,104,0.16);
+    --paid:#5BCB98;
+    --paid-soft:rgba(91,203,152,0.16);
+    --pending:#EA7767;
+    --pending-soft:rgba(234,119,103,0.16);
+    --border:#2E323A;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -41,6 +41,7 @@ window.onerror = function(msg, url, line, col, error){
     display:flex;
     justify-content:center;
     -webkit-font-smoothing:antialiased;
+    line-height:1.45;
   }
   .app{
     width:100%;
@@ -49,23 +50,23 @@ window.onerror = function(msg, url, line, col, error){
     background:var(--bg);
     display:flex;
     flex-direction:column;
-    padding:24px 16px 108px;
+    padding:26px 18px 40px;
   }
 
-  header{margin-bottom:18px;}
+  header{margin-bottom:20px;}
   h1{
     font-family:'Fraunces',serif;
     font-weight:600;
-    font-size:29px;
-    margin:0 0 5px;
+    font-size:30px;
+    margin:0 0 6px;
     letter-spacing:-0.01em;
     color:var(--ink);
   }
-  .subtitle{color:var(--ink-soft);font-size:14px;margin:0;font-variant-numeric:tabular-nums;}
-  .header-links{display:flex;gap:16px;margin-top:10px;}
+  .subtitle{color:var(--ink-soft);font-size:14.5px;margin:0;font-variant-numeric:tabular-nums;line-height:1.5;}
+  .header-links{display:flex;gap:18px;margin-top:12px;}
   .link-btn{
-    border:none;background:none;color:var(--ink-soft);font-size:12.5px;
-    text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:0;
+    border:none;background:none;color:var(--ink-soft);font-size:13px;
+    text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;
   }
 
   .tabs-row{
@@ -141,26 +142,29 @@ window.onerror = function(msg, url, line, col, error){
   .search-input::placeholder{color:var(--ink-soft);}
   .search-input:focus{border-color:var(--gold);}
 
-  .list-label{font-size:13px;color:var(--ink-soft);margin:6px 2px 8px;display:flex;justify-content:space-between;}
+  .list-label{font-size:13px;color:var(--ink-soft);margin:8px 2px 10px;display:flex;justify-content:space-between;align-items:center;}
+  .add-person-toggle{
+    border:none;background:none;color:var(--gold);font-size:13px;font-weight:600;cursor:pointer;padding:0;
+  }
 
   .person{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
-    padding:13px 4px;border-bottom:1px solid var(--border);
+    padding:14px 4px;border-bottom:1px solid var(--border);
   }
-  .person-left{display:flex;align-items:center;gap:10px;min-width:0;}
+  .person-left{display:flex;align-items:center;gap:11px;min-width:0;}
   .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--pending);}
   .dot.paid{background:var(--paid);}
-  .person-name{font-size:15px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .person-name{font-size:15.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .status-btn{
-    border:none;font-size:13px;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer;
+    border:none;font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:999px;cursor:pointer;
     white-space:nowrap;flex-shrink:0;
   }
   .status-btn.pending{background:var(--pending-soft);color:var(--pending);}
   .status-btn.paid{background:var(--paid-soft);color:var(--paid);}
   .status-btn:active{opacity:0.7;}
   .delete-btn{
-    border:none;background:none;color:var(--ink-soft);font-size:18px;cursor:pointer;
-    padding:0 0 0 6px;line-height:1;flex-shrink:0;
+    border:none;background:none;color:var(--ink-soft);font-size:19px;cursor:pointer;
+    padding:0 0 0 8px;line-height:1;flex-shrink:0;
   }
 
   .empty{text-align:center;color:var(--ink-soft);font-size:14px;padding:28px 10px;}
@@ -175,22 +179,15 @@ window.onerror = function(msg, url, line, col, error){
     padding:0 16px;border-radius:12px;cursor:pointer;
   }
 
-  .add-bar{
-    position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;padding:14px 16px;
-    background:linear-gradient(to top, var(--bg) 65%, transparent);
+  .add-person-form{display:flex;gap:8px;margin-bottom:14px;}
+  .add-person-form input{
+    flex:1;border:1px solid var(--gold);background:var(--surface);border-radius:12px;
+    padding:11px 13px;font-size:14.5px;outline:none;color:var(--ink);
   }
-  .add-bar-inner{width:100%;max-width:460px;display:flex;gap:8px;}
-  .add-bar input{
-    flex:1;border:1px solid var(--border);background:var(--surface);border-radius:12px;
-    padding:13px 14px;font-size:15px;font-family:'Inter',sans-serif;outline:none;color:var(--ink);
+  .add-person-form button{
+    border:none;background:var(--gold);color:#231A0B;font-size:13px;font-weight:700;
+    padding:0 16px;border-radius:12px;cursor:pointer;
   }
-  .add-bar input::placeholder{color:var(--ink-soft);}
-  .add-bar input:focus{border-color:var(--gold);}
-  .add-btn{
-    border:none;background:var(--gold);color:#231A0B;font-size:14px;font-weight:700;
-    padding:0 18px;border-radius:12px;cursor:pointer;
-  }
-  .add-btn:active{opacity:0.85;}
 
   .loading{text-align:center;color:var(--ink-soft);padding:60px 0;font-size:14px;}
 </style>
@@ -216,6 +213,7 @@ let data = null;
 let loaded = false;
 let searchQuery = '';
 let showAddCampaignForm = false;
+let showAddPersonForm = false;
 let editingTarget = false;
 let showStats = false;
 
@@ -374,6 +372,11 @@ function confirmTarget(){
   setTarget(input.value);
 }
 
+function toggleAddPersonForm(){
+  showAddPersonForm = !showAddPersonForm;
+  render();
+}
+
 function addPerson(name){
   const trimmed = name.trim();
   if(!trimmed) return;
@@ -416,7 +419,59 @@ function resetToDefaults(){
 
 function onSearchInput(val){
   searchQuery = val;
-  render();
+  renderPeopleListOnly();
+}
+
+function getFilteredPeople(){
+  const active = getActiveCampaign();
+  const paidSet = data.payments[active.id] || {};
+  const q = searchQuery.trim().toLowerCase();
+  let filtered = q
+    ? data.people.filter(p => p.name.toLowerCase().includes(q))
+    : data.people.slice();
+  filtered = filtered
+    .map((p, idx) => ({ p, idx, paid: !!paidSet[p.id] }))
+    .sort((a, b) => (a.paid === b.paid ? a.idx - b.idx : (a.paid ? 1 : -1)))
+    .map(x => x.p);
+  return { filtered, paidSet };
+}
+
+function buildPeopleHtml(){
+  const { filtered, paidSet } = getFilteredPeople();
+  if(data.people.length === 0){
+    return '<div class="empty">Hali odam qo\'shilmagan.<br>Pastda "+ Odam qo\'shish" tugmasini bosing.</div>';
+  }
+  if(filtered.length === 0){
+    return '<div class="empty">Hech kim topilmadi.</div>';
+  }
+  return filtered.map(p => {
+    const isPaid = !!paidSet[p.id];
+    return `
+      <div class="person">
+        <div class="person-left">
+          <span class="dot ${isPaid ? 'paid' : ''}"></span>
+          <span class="person-name">${escapeHtml(p.name)}</span>
+        </div>
+        <div style="display:flex;align-items:center;">
+          <button class="status-btn ${isPaid ? 'paid' : 'pending'}" onclick="togglePaid('${p.id}')">${isPaid ? "✓ To'ladi" : "To'lamadi"}</button>
+          <button class="delete-btn" onclick="deletePerson('${p.id}')" aria-label="O'chirish">×</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Qidiruv paytida faqat ro'yxatni yangilaydi, klaviatura yopilib qolmasligi uchun
+// butun sahifani qayta chizmaydi (qidiruv maydonining o'zi qayta yaratilmaydi).
+function renderPeopleListOnly(){
+  const listEl = document.getElementById('peopleList');
+  const countEl = document.getElementById('listCount');
+  if(!listEl || !data) return;
+  listEl.innerHTML = buildPeopleHtml();
+  if(countEl){
+    const { filtered } = getFilteredPeople();
+    countEl.textContent = filtered.length + '/' + data.people.length;
+  }
 }
 
 function escapeHtml(str){
@@ -482,6 +537,13 @@ function render(){
     </div>
   ` : '';
 
+  const addPersonFormHtml = showAddPersonForm ? `
+    <div class="add-person-form">
+      <input id="newPersonName" type="text" placeholder="Ism kiriting..." maxlength="40">
+      <button onclick="submitNewPerson()">Qo'shish</button>
+    </div>
+  ` : '';
+
   const targetHtml = editingTarget
     ? `<div class="target-value"><input id="targetInput" type="number" inputmode="numeric" value="${active.amount}" autofocus></div>
        <div class="btn-row"><button class="edit-btn" onclick="confirmTarget()">Saqlash</button></div>`
@@ -491,35 +553,8 @@ function render(){
          <button class="remove-campaign-btn" onclick="removeCampaign('${cid}')">O'chirish</button>
        </div>`;
 
-  const q = searchQuery.trim().toLowerCase();
-  let filteredPeople = q
-    ? data.people.filter(p => p.name.toLowerCase().includes(q))
-    : data.people.slice();
-
-  filteredPeople = filteredPeople
-    .map((p, idx) => ({ p, idx, paid: !!paidSet[p.id] }))
-    .sort((a, b) => (a.paid === b.paid ? a.idx - b.idx : (a.paid ? 1 : -1)))
-    .map(x => x.p);
-
-  const peopleHtml = data.people.length === 0
-    ? '<div class="empty">Hali odam qo\'shilmagan.<br>Pastdan ism kiriting.</div>'
-    : (filteredPeople.length === 0
-      ? '<div class="empty">Hech kim topilmadi.</div>'
-      : filteredPeople.map(p => {
-        const isPaid = !!paidSet[p.id];
-        return `
-        <div class="person">
-          <div class="person-left">
-            <span class="dot ${isPaid ? 'paid' : ''}"></span>
-            <span class="person-name">${escapeHtml(p.name)}</span>
-          </div>
-          <div style="display:flex;align-items:center;">
-            <button class="status-btn ${isPaid ? 'paid' : 'pending'}" onclick="togglePaid('${p.id}')">${isPaid ? "✓ To'ladi" : "To'lamadi"}</button>
-            <button class="delete-btn" onclick="deletePerson('${p.id}')" aria-label="O'chirish">×</button>
-          </div>
-        </div>
-      `;
-      }).join(''));
+  const { filtered: filteredPeople } = getFilteredPeople();
+  const peopleHtml = buildPeopleHtml();
 
   app.innerHTML = `
     <header>
@@ -555,7 +590,11 @@ function render(){
       <input class="search-input" type="text" placeholder="Ism bo'yicha qidirish..." value="${escapeHtml(searchQuery)}" oninput="onSearchInput(this.value)">
     </div>
 
-    <div class="list-label"><span>Odamlar ro'yxati</span><span>${filteredPeople.length}/${total}</span></div>
+    <div class="list-label">
+      <span>Odamlar ro'yxati &middot; <span id="listCount">${filteredPeople.length}/${total}</span></span>
+      <button class="add-person-toggle" onclick="toggleAddPersonForm()">${showAddPersonForm ? 'Bekor qilish' : '+ Odam qo\'shish'}</button>
+    </div>
+    ${addPersonFormHtml}
     <div id="peopleList">${peopleHtml}</div>
   `;
 
@@ -570,35 +609,24 @@ function render(){
       input.addEventListener('keydown', (e) => { if(e.key === 'Enter') addCampaign(input.value); });
     }
   }
+  if(showAddPersonForm){
+    const input = document.getElementById('newPersonName');
+    if(input){
+      input.focus();
+      input.addEventListener('keydown', (e) => { if(e.key === 'Enter') submitNewPerson(); });
+    }
+  }
+}
+
+function submitNewPerson(){
+  const input = document.getElementById('newPersonName');
+  if(!input) return;
+  const val = input.value;
+  addPerson(val);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   loadData();
-});
-</script>
-
-<div class="add-bar">
-  <div class="add-bar-inner">
-    <input id="addPersonInput" type="text" placeholder="Ism kiriting..." maxlength="40">
-    <button class="add-btn" id="addBtn">Qo'shish</button>
-  </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const input = document.getElementById('addPersonInput');
-  const btn = document.getElementById('addBtn');
-  btn.addEventListener('click', () => {
-    addPerson(input.value);
-    input.value = '';
-    input.focus();
-  });
-  input.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter'){
-      addPerson(input.value);
-      input.value = '';
-    }
-  });
 });
 </script>
 </body>
