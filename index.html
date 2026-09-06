@@ -74,14 +74,6 @@ window.onerror = function(msg, url, line, col, error){
   }
 
   header{margin-bottom:20px;position:relative;}
-  header::after{
-    content:"";
-    position:absolute;
-    left:0;bottom:-10px;
-    width:42px;height:3px;
-    border-radius:3px;
-    background:linear-gradient(90deg, var(--gold), transparent);
-  }
   h1{
     font-family:'Fraunces',serif;
     font-weight:600;
@@ -94,7 +86,20 @@ window.onerror = function(msg, url, line, col, error){
     color:transparent;
   }
   .subtitle{color:var(--ink-soft);font-size:14.5px;margin:0;font-variant-numeric:tabular-nums;line-height:1.5;}
-  .header-links{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;row-gap:6px;}
+  .header-links{display:flex;gap:10px;margin-top:12px;}
+  .icon-btn{
+    display:flex;align-items:center;justify-content:center;
+    width:40px;height:40px;border-radius:12px;flex-shrink:0;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(30,33,38,0.55);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    color:var(--ink-soft);cursor:pointer;
+  }
+  .icon-btn svg{width:19px;height:19px;}
+  .icon-btn.on{
+    color:var(--gold);border-color:rgba(224,178,104,0.4);background:var(--gold-soft);
+  }
+  .icon-btn:active{transform:scale(0.94);}
   .link-btn{
     border:none;background:none;color:var(--ink-soft);font-size:13px;
     text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;
@@ -105,7 +110,8 @@ window.onerror = function(msg, url, line, col, error){
   }
   .tabs-row::-webkit-scrollbar{display:none;}
   .tab-btn{
-    flex-shrink:0;border:1px solid var(--border);background:var(--surface);color:var(--ink-soft);
+    flex-shrink:0;border:1px solid rgba(255,255,255,0.08);background:rgba(30,33,38,0.55);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:var(--ink-soft);
     font-size:14px;font-weight:600;padding:9px 16px;border-radius:999px;cursor:pointer;
     white-space:nowrap;font-variant-numeric:tabular-nums;
   }
@@ -181,7 +187,8 @@ window.onerror = function(msg, url, line, col, error){
 
   .search-wrap{margin-bottom:10px;}
   .search-input{
-    width:100%;border:1px solid var(--border);background:var(--surface);border-radius:12px;
+    width:100%;border:1px solid rgba(255,255,255,0.08);background:rgba(30,33,38,0.5);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-radius:12px;
     padding:12px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;color:var(--ink);
   }
   .search-input::placeholder{color:var(--ink-soft);}
@@ -212,6 +219,17 @@ window.onerror = function(msg, url, line, col, error){
     padding:0 0 0 8px;line-height:1;flex-shrink:0;
   }
 
+  .icon-btn.small{
+    width:32px;height:32px;border-radius:9px;margin-left:6px;background:transparent;
+    border:none;color:var(--ink-soft);
+  }
+  .icon-btn.small svg{width:16px;height:16px;}
+  .edit-name-input{
+    flex:1;border:none;border-bottom:1.5px solid var(--gold);background:transparent;
+    color:var(--ink);font-size:15.5px;font-weight:500;padding:4px 2px;outline:none;
+    font-family:'Inter',sans-serif;
+  }
+
   .empty{text-align:center;color:var(--ink-soft);font-size:14px;padding:28px 10px;}
 
   .add-campaign-form{display:flex;gap:8px;margin-bottom:14px;}
@@ -232,6 +250,14 @@ window.onerror = function(msg, url, line, col, error){
   .add-person-form button{
     border:none;background:var(--gold);color:#231A0B;font-size:13px;font-weight:700;
     padding:0 16px;border-radius:12px;cursor:pointer;box-shadow:0 4px 14px rgba(224,178,104,0.3);
+  }
+
+  .confetti-piece{
+    position:fixed;top:-14px;width:8px;height:14px;z-index:9999;border-radius:2px;
+    animation:confettiFall 2.3s ease-in forwards;pointer-events:none;
+  }
+  @keyframes confettiFall{
+    to{ transform:translateY(112vh) rotate(400deg); opacity:0.25; }
   }
 
   .loading{
@@ -267,6 +293,9 @@ window.onerror = function(msg, url, line, col, error){
 </style>
 </head>
 <body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
 <div class="app" id="app">
   <div class="loading" id="loading"><div class="spinner"></div>Yuklanmoqda...</div>
 </div>
@@ -289,6 +318,7 @@ let searchQuery = '';
 let showAddCampaignForm = false;
 let showAddPersonForm = false;
 let editingTarget = false;
+let editingPersonId = null;
 let showStats = false;
 
 const inTelegram = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage);
@@ -498,6 +528,28 @@ function togglePaid(personId){
   }
   saveData();
   render();
+
+  const total = data.people.length;
+  const paidSetNow = data.payments[cid] || {};
+  const paidCountNow = data.people.filter(p => paidSetNow[p.id]).length;
+  if(total > 0 && paidCountNow === total){
+    launchConfetti();
+  }
+}
+
+function launchConfetti(){
+  haptic('success');
+  const colors = ['#E0B268','#5BCB98','#EA7767','#F3F4F6'];
+  for(let i = 0; i < 40; i++){
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = (Math.random() * 100) + 'vw';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay = (Math.random() * 0.35) + 's';
+    el.style.transform = 'rotate(' + Math.floor(Math.random() * 360) + 'deg)';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2700);
+  }
 }
 
 function shareUnpaid(){
@@ -548,6 +600,15 @@ function onSearchInput(val){
   renderPeopleListOnly();
 }
 
+function computeTotalDebt(personId){
+  let debt = 0;
+  data.campaigns.forEach(c => {
+    const isPaid = data.payments[c.id] && data.payments[c.id][personId];
+    if(!isPaid) debt += c.amount;
+  });
+  return debt;
+}
+
 function getFilteredPeople(){
   const active = getActiveCampaign();
   const paidSet = data.payments[active.id] || {};
@@ -556,10 +617,37 @@ function getFilteredPeople(){
     ? data.people.filter(p => p.name.toLowerCase().includes(q))
     : data.people.slice();
   filtered = filtered
-    .map((p, idx) => ({ p, idx, paid: !!paidSet[p.id] }))
-    .sort((a, b) => (a.paid === b.paid ? a.idx - b.idx : (a.paid ? 1 : -1)))
+    .map((p, idx) => ({ p, idx, paid: !!paidSet[p.id], debt: computeTotalDebt(p.id) }))
+    .sort((a, b) => {
+      if(a.paid !== b.paid) return a.paid ? 1 : -1;
+      if(!a.paid) return b.debt - a.debt;
+      return a.idx - b.idx;
+    })
     .map(x => x.p);
   return { filtered, paidSet };
+}
+
+function startEditPerson(id){
+  editingPersonId = id;
+  render();
+}
+
+function cancelEditPerson(){
+  editingPersonId = null;
+  render();
+}
+
+function renamePerson(id){
+  const input = document.getElementById('editNameInput-' + id);
+  if(!input) return;
+  const trimmed = input.value.trim();
+  if(trimmed){
+    const p = data.people.find(p => p.id === id);
+    if(p) p.name = trimmed;
+    saveData();
+  }
+  editingPersonId = null;
+  render();
 }
 
 function buildPeopleHtml(){
@@ -572,6 +660,21 @@ function buildPeopleHtml(){
   }
   return filtered.map(p => {
     const isPaid = !!paidSet[p.id];
+    if(editingPersonId === p.id){
+      return `
+        <div class="person">
+          <input id="editNameInput-${p.id}" class="edit-name-input" type="text" value="${escapeHtml(p.name)}" maxlength="40">
+          <div style="display:flex;align-items:center;">
+            <button class="icon-btn small" onclick="renamePerson('${p.id}')" aria-label="Saqlash">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            </button>
+            <button class="icon-btn small" onclick="cancelEditPerson()" aria-label="Bekor qilish">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+      `;
+    }
     return `
       <div class="person">
         <div class="person-left">
@@ -580,6 +683,9 @@ function buildPeopleHtml(){
         </div>
         <div style="display:flex;align-items:center;">
           <button class="status-btn ${isPaid ? 'paid' : 'pending'}" onclick="togglePaid('${p.id}')">${isPaid ? "✓ To'ladi" : "To'lamadi"}</button>
+          <button class="icon-btn small" onclick="startEditPerson('${p.id}')" aria-label="Tahrirlash">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
           <button class="delete-btn" onclick="deletePerson('${p.id}')" aria-label="O'chirish">×</button>
         </div>
       </div>
@@ -687,9 +793,15 @@ function render(){
       <h1>Pul yeg'ish</h1>
       <p class="subtitle">${total} kishi ro'yxatda &middot; ${paidCount} tasi to'ladi (${formatSum(active.amount)} bo'yicha)</p>
       <div class="header-links">
-        <button class="link-btn" onclick="toggleStats()">${showStats ? 'Hisobotni yopish' : 'Umumiy hisobot'}</button>
-        <button class="link-btn" onclick="shareUnpaid()">To'lamaganlarni ulashish</button>
-        <button class="link-btn" onclick="resetToDefaults()">Asl holatga qaytarish</button>
+        <button class="icon-btn ${showStats ? 'on' : ''}" onclick="toggleStats()" title="Umumiy hisobot" aria-label="Umumiy hisobot">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+        </button>
+        <button class="icon-btn" onclick="shareUnpaid()" title="To'lamaganlarni ulashish" aria-label="Ulashish">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v14"/></svg>
+        </button>
+        <button class="icon-btn" onclick="resetToDefaults()" title="Asl holatga qaytarish" aria-label="Asl holatga qaytarish">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
+        </button>
       </div>
     </header>
 
@@ -741,6 +853,17 @@ function render(){
     if(input){
       input.focus();
       input.addEventListener('keydown', (e) => { if(e.key === 'Enter') submitNewPerson(); });
+    }
+  }
+  if(editingPersonId){
+    const input = document.getElementById('editNameInput-' + editingPersonId);
+    if(input){
+      input.focus();
+      input.select();
+      input.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') renamePerson(editingPersonId);
+        if(e.key === 'Escape') cancelEditPerson();
+      });
     }
   }
 }
