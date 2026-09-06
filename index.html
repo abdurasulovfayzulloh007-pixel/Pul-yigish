@@ -217,6 +217,7 @@ let loaded = false;
 let searchQuery = '';
 let showAddCampaignForm = false;
 let editingTarget = false;
+let showStats = false;
 
 const inTelegram = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage);
 if(window.Telegram && window.Telegram.WebApp){
@@ -399,6 +400,11 @@ function togglePaid(personId){
   render();
 }
 
+function toggleStats(){
+  showStats = !showStats;
+  render();
+}
+
 function resetToDefaults(){
   if(!confirm("Hammasi asl holatga qaytarilsinmi? Barcha to'lov turlari, belgilashlar va qo'shimcha odamlar yo'qoladi.")) return;
   data = defaultData();
@@ -437,6 +443,36 @@ function render(){
     <button class="tab-btn ${c.id === cid ? 'active' : ''}" onclick="switchCampaign('${c.id}')">${formatSum(c.amount)}</button>
   `).join('') + `<button class="tab-btn add-tab" onclick="toggleAddCampaignForm()">+ Yangi tur</button>`;
 
+  let grandCollected = 0, grandTarget = 0;
+  const statsRows = data.campaigns.map(c => {
+    const set = data.payments[c.id] || {};
+    const paid = data.people.filter(p => set[p.id]).length;
+    const col = paid * c.amount;
+    const tgt = data.people.length * c.amount;
+    grandCollected += col;
+    grandTarget += tgt;
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <div>
+          <div style="font-weight:600;font-size:14px;">${formatSum(c.amount)}</div>
+          <div style="font-size:12px;color:var(--ink-soft);">${paid}/${data.people.length} kishi to'ladi</div>
+        </div>
+        <div style="font-family:'Fraunces',serif;font-size:15px;color:var(--gold);">${formatSum(col)}</div>
+      </div>
+    `;
+  }).join('');
+
+  const statsHtml = showStats ? `
+    <div class="card" style="margin-bottom:14px;">
+      <div style="font-size:13px;color:var(--ink-soft);margin-bottom:8px;">Barcha turlar bo'yicha hisobot</div>
+      ${statsRows}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:4px;">
+        <div style="font-weight:700;font-size:15px;">Jami yig'ildi</div>
+        <div style="font-family:'Fraunces',serif;font-size:19px;font-weight:600;color:var(--paid);">${formatSum(grandCollected)} <span style="font-size:13px;color:var(--ink-soft);font-weight:400;font-family:'Inter',sans-serif;">/ ${formatSum(grandTarget)}</span></div>
+      </div>
+    </div>
+  ` : '';
+
   const addCampaignFormHtml = showAddCampaignForm ? `
     <div class="add-campaign-form">
       <input id="newCampaignAmount" type="number" inputmode="numeric" placeholder="Masalan: 50000">
@@ -454,9 +490,15 @@ function render(){
        </div>`;
 
   const q = searchQuery.trim().toLowerCase();
-  const filteredPeople = q
+  let filteredPeople = q
     ? data.people.filter(p => p.name.toLowerCase().includes(q))
-    : data.people;
+    : data.people.slice();
+
+  // To'lamaganlar tepada, to'laganlar pastda (har bir guruh ichida asl tartib saqlanadi)
+  filteredPeople = filteredPeople
+    .map((p, idx) => ({ p, idx, paid: !!paidSet[p.id] }))
+    .sort((a, b) => (a.paid === b.paid ? a.idx - b.idx : (a.paid ? 1 : -1)))
+    .map(x => x.p);
 
   const peopleHtml = data.people.length === 0
     ? '<div class="empty">Hali odam qo\'shilmagan.<br>Pastdan ism kiriting.</div>'
@@ -481,8 +523,13 @@ function render(){
     <header>
       <h1>Pul yig'ish</h1>
       <p class="subtitle">${total} kishi ro'yxatda · ${paidCount} tasi to'ladi (${formatSum(active.amount)} bo'yicha)</p>
-      <button class="reset-link" onclick="resetToDefaults()">Ro'yxatni asl holatga qaytarish</button>
+      <div style="display:flex;gap:14px;margin-top:8px;">
+        <button class="reset-link" onclick="toggleStats()">${showStats ? 'Hisobotni yopish' : 'Umumiy hisobot'}</button>
+        <button class="reset-link" onclick="resetToDefaults()">Ro'yxatni asl holatga qaytarish</button>
+      </div>
     </header>
+
+    ${statsHtml}
 
     <div class="tabs-row">${tabsHtml}</div>
     ${addCampaignFormHtml}
