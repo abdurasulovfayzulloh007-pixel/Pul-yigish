@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Pul yig'ish</title>
+<title>Pul yeg'ish</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -42,28 +42,59 @@ window.onerror = function(msg, url, line, col, error){
     justify-content:center;
     -webkit-font-smoothing:antialiased;
     line-height:1.45;
+    position:relative;
+    overflow-x:hidden;
   }
+  .orb{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(70px);
+    pointer-events:none;
+    z-index:0;
+  }
+  .orb-1{width:280px;height:280px;background:var(--gold);opacity:0.30;top:-90px;left:-70px;}
+  .orb-2{width:240px;height:240px;background:var(--paid);opacity:0.24;bottom:6%;right:-80px;}
+  .orb-3{width:220px;height:220px;background:var(--pending);opacity:0.16;top:38%;left:55%;}
+  @keyframes float1{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(18px,26px); } }
+  @keyframes float2{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(-22px,-16px); } }
+  @keyframes float3{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(14px,-20px); } }
+  .orb-1{ animation:float1 11s ease-in-out infinite; }
+  .orb-2{ animation:float2 13s ease-in-out infinite; }
+  .orb-3{ animation:float3 9s ease-in-out infinite; }
   .app{
     width:100%;
     max-width:460px;
     min-height:100vh;
-    background:var(--bg);
+    background:transparent;
     display:flex;
     flex-direction:column;
     padding:26px 18px 40px;
+    position:relative;
+    z-index:1;
   }
 
-  header{margin-bottom:20px;}
+  header{margin-bottom:20px;position:relative;}
+  header::after{
+    content:"";
+    position:absolute;
+    left:0;bottom:-10px;
+    width:42px;height:3px;
+    border-radius:3px;
+    background:linear-gradient(90deg, var(--gold), transparent);
+  }
   h1{
     font-family:'Fraunces',serif;
     font-weight:600;
-    font-size:30px;
+    font-size:32px;
     margin:0 0 6px;
-    letter-spacing:-0.01em;
-    color:var(--ink);
+    letter-spacing:-0.015em;
+    background:linear-gradient(100deg, var(--gold) 0%, #F0D9A8 35%, var(--paid) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
   }
   .subtitle{color:var(--ink-soft);font-size:14.5px;margin:0;font-variant-numeric:tabular-nums;line-height:1.5;}
-  .header-links{display:flex;gap:18px;margin-top:12px;}
+  .header-links{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;row-gap:6px;}
   .link-btn{
     border:none;background:none;color:var(--ink-soft);font-size:13px;
     text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;
@@ -78,16 +109,27 @@ window.onerror = function(msg, url, line, col, error){
     font-size:14px;font-weight:600;padding:9px 16px;border-radius:999px;cursor:pointer;
     white-space:nowrap;font-variant-numeric:tabular-nums;
   }
-  .tab-btn.active{background:var(--gold);color:#231A0B;border-color:var(--gold);}
+  .tab-btn.active{background:var(--gold);color:#231A0B;border-color:var(--gold);box-shadow:0 4px 14px rgba(224,178,104,0.3);}
   .tab-btn.add-tab{background:transparent;color:var(--gold);border:1px dashed var(--gold);}
 
   .card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:18px;
+    background:rgba(30,33,38,0.55);
+    -webkit-backdrop-filter:blur(20px);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px;
     padding:18px;
     margin-bottom:14px;
-    box-shadow:0 8px 20px rgba(0,0,0,0.25);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.05) inset,
+      0 14px 34px rgba(0,0,0,0.35);
+    position:relative;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;left:18px;right:18px;height:1px;
+    background:linear-gradient(90deg, transparent, rgba(224,178,104,0.5), transparent);
   }
 
   .target-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
@@ -118,7 +160,10 @@ window.onerror = function(msg, url, line, col, error){
   .progress-sum .of{font-size:13px;color:var(--ink-soft);font-weight:400;font-family:'Inter',sans-serif;}
   .progress-people{font-size:13px;color:var(--ink-soft);}
   .bar{height:8px;background:var(--surface-2);border-radius:5px;overflow:hidden;}
-  .bar-fill{height:100%;background:linear-gradient(90deg,#3AA476,var(--paid));border-radius:5px;transition:width 0.4s ease;}
+  .bar-fill{
+    height:100%;background:linear-gradient(90deg,#3AA476,var(--paid));border-radius:5px;
+    transition:width 0.4s ease;box-shadow:0 0 10px rgba(91,203,152,0.45);
+  }
 
   .report-row{
     display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);
@@ -176,7 +221,7 @@ window.onerror = function(msg, url, line, col, error){
   }
   .add-campaign-form button{
     border:none;background:var(--gold);color:#231A0B;font-size:13px;font-weight:700;
-    padding:0 16px;border-radius:12px;cursor:pointer;
+    padding:0 16px;border-radius:12px;cursor:pointer;box-shadow:0 4px 14px rgba(224,178,104,0.3);
   }
 
   .add-person-form{display:flex;gap:8px;margin-bottom:14px;}
@@ -186,15 +231,44 @@ window.onerror = function(msg, url, line, col, error){
   }
   .add-person-form button{
     border:none;background:var(--gold);color:#231A0B;font-size:13px;font-weight:700;
-    padding:0 16px;border-radius:12px;cursor:pointer;
+    padding:0 16px;border-radius:12px;cursor:pointer;box-shadow:0 4px 14px rgba(224,178,104,0.3);
   }
 
-  .loading{text-align:center;color:var(--ink-soft);padding:60px 0;font-size:14px;}
+  .loading{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:90px 0;color:var(--ink-soft);font-size:14px;
+  }
+  .spinner{
+    width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);
+    border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:14px;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  @keyframes fadeIn{
+    from{ opacity:0; transform:translateY(5px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .person{ animation:fadeIn 0.22s ease; }
+
+  @keyframes pop{
+    0%{ transform:scale(0.55); }
+    60%{ transform:scale(1.18); }
+    100%{ transform:scale(1); }
+  }
+  .dot.paid{ animation:pop 0.3s ease; }
+  .status-btn.paid{ animation:pop 0.22s ease; }
+
+  .tab-btn, .status-btn, .link-btn, .add-person-toggle, .edit-btn, .remove-campaign-btn, .delete-btn{
+    transition:transform 0.12s ease, opacity 0.12s ease;
+  }
+  .tab-btn:active, .status-btn:active, .edit-btn:active, .remove-campaign-btn:active{
+    transform:scale(0.96);
+  }
 </style>
 </head>
 <body>
 <div class="app" id="app">
-  <div class="loading" id="loading">Yuklanmoqda...</div>
+  <div class="loading" id="loading"><div class="spinner"></div>Yuklanmoqda...</div>
 </div>
 
 <script>
@@ -223,6 +297,15 @@ if(window.Telegram && window.Telegram.WebApp){
   window.Telegram.WebApp.expand();
   try{ window.Telegram.WebApp.setHeaderColor('#15171B'); }catch(e){}
   try{ window.Telegram.WebApp.setBackgroundColor('#15171B'); }catch(e){}
+}
+
+function haptic(kind){
+  try{
+    const hf = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback;
+    if(!hf) return;
+    if(kind === 'success' || kind === 'warning' || kind === 'error') hf.notificationOccurred(kind);
+    else hf.impactOccurred(kind || 'light');
+  }catch(e){}
 }
 
 function formatSum(n){
@@ -320,12 +403,14 @@ function getActiveCampaign(){
 }
 
 function switchCampaign(id){
+  haptic('light');
   data.activeCampaignId = id;
   editingTarget = false;
   render();
 }
 
 function toggleAddCampaignForm(){
+  haptic('light');
   showAddCampaignForm = !showAddCampaignForm;
   render();
 }
@@ -333,6 +418,7 @@ function toggleAddCampaignForm(){
 function addCampaign(amountStr){
   const amount = parseInt(amountStr, 10);
   if(isNaN(amount) || amount <= 0) return;
+  haptic('success');
   const id = 'c' + Date.now().toString(36);
   data.campaigns.push({ id, amount });
   data.payments[id] = {};
@@ -344,11 +430,13 @@ function addCampaign(amountStr){
 
 function removeCampaign(id){
   if(data.campaigns.length <= 1){
+    haptic('error');
     alert("Kamida bitta to'lov turi qolishi kerak.");
     return;
   }
   const c = data.campaigns.find(c => c.id === id);
   if(!confirm((c ? formatSum(c.amount) : 'Bu') + " to'lov turi butunlay o'chirilsinmi? Unga tegishli barcha belgilashlar yo'qoladi.")) return;
+  haptic('warning');
   data.campaigns = data.campaigns.filter(c => c.id !== id);
   delete data.payments[id];
   if(data.activeCampaignId === id){
@@ -380,6 +468,7 @@ function toggleAddPersonForm(){
 function addPerson(name){
   const trimmed = name.trim();
   if(!trimmed) return;
+  haptic('success');
   const id = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
   data.people.push({ id, name: trimmed });
   saveData();
@@ -390,6 +479,7 @@ function deletePerson(id){
   const p = data.people.find(p => p.id === id);
   const name = p ? p.name : "bu odam";
   if(!confirm(name + " ro'yxatdan rostan ham o'chirilsinmi?")) return;
+  haptic('warning');
   data.people = data.people.filter(p => p.id !== id);
   Object.keys(data.payments).forEach(cid => { delete data.payments[cid][id]; });
   saveData();
@@ -399,19 +489,55 @@ function deletePerson(id){
 function togglePaid(personId){
   const cid = data.activeCampaignId;
   if(!data.payments[cid]) data.payments[cid] = {};
-  if(data.payments[cid][personId]) delete data.payments[cid][personId];
-  else data.payments[cid][personId] = true;
+  if(data.payments[cid][personId]){
+    delete data.payments[cid][personId];
+    haptic('light');
+  } else {
+    data.payments[cid][personId] = true;
+    haptic('success');
+  }
   saveData();
   render();
 }
 
+function shareUnpaid(){
+  haptic('light');
+  const active = getActiveCampaign();
+  const paidSet = data.payments[active.id] || {};
+  const unpaid = data.people.filter(p => !paidSet[p.id]);
+  let text;
+  if(unpaid.length === 0){
+    text = `${formatSum(active.amount)} bo'yicha: hammasi to'lagan! 🎉`;
+  } else {
+    text = `${formatSum(active.amount)} bo'yicha hali to'lamaganlar (${unpaid.length} kishi):\n`;
+    text += unpaid.map((p, i) => `${i + 1}. ${p.name}`).join('\n');
+  }
+  const shareUrl = 'https://t.me/share/url?url=&text=' + encodeURIComponent(text);
+  try{
+    if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink){
+      window.Telegram.WebApp.openTelegramLink(shareUrl);
+    } else if(navigator.share){
+      navigator.share({ text: text });
+    } else {
+      window.open(shareUrl, '_blank');
+    }
+  }catch(e){
+    try{
+      navigator.clipboard.writeText(text);
+      alert("Matn nusxalandi, uni Telegram'ga joylashtiring.");
+    }catch(e2){ /* ignore */ }
+  }
+}
+
 function toggleStats(){
+  haptic('light');
   showStats = !showStats;
   render();
 }
 
 function resetToDefaults(){
   if(!confirm("Hammasi asl holatga qaytarilsinmi? Barcha to'lov turlari, belgilashlar va qo'shimcha odamlar yo'qoladi.")) return;
+  haptic('warning');
   data = defaultData();
   saveData();
   render();
@@ -483,7 +609,7 @@ function escapeHtml(str){
 function render(){
   const app = document.getElementById('app');
   if(!loaded || !data){
-    app.innerHTML = '<div class="loading">Yuklanmoqda...</div>';
+    app.innerHTML = '<div class="loading"><div class="spinner"></div>Yuklanmoqda...</div>';
     return;
   }
 
@@ -558,11 +684,12 @@ function render(){
 
   app.innerHTML = `
     <header>
-      <h1>Pul yig'ish</h1>
+      <h1>Pul yeg'ish</h1>
       <p class="subtitle">${total} kishi ro'yxatda &middot; ${paidCount} tasi to'ladi (${formatSum(active.amount)} bo'yicha)</p>
       <div class="header-links">
         <button class="link-btn" onclick="toggleStats()">${showStats ? 'Hisobotni yopish' : 'Umumiy hisobot'}</button>
-        <button class="link-btn" onclick="resetToDefaults()">Ro'yxatni asl holatga qaytarish</button>
+        <button class="link-btn" onclick="shareUnpaid()">To'lamaganlarni ulashish</button>
+        <button class="link-btn" onclick="resetToDefaults()">Asl holatga qaytarish</button>
       </div>
     </header>
 
