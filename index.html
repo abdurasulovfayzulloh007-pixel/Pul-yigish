@@ -230,6 +230,15 @@ window.onerror = function(msg, url, line, col, error){
     font-family:'Inter',sans-serif;
   }
 
+  .notepad-textarea{
+    width:100%;min-height:96px;border:1px solid rgba(255,255,255,0.08);
+    background:rgba(0,0,0,0.15);border-radius:12px;padding:12px 13px;
+    font-size:14px;font-family:'Inter',sans-serif;color:var(--ink);outline:none;
+    resize:vertical;line-height:1.5;
+  }
+  .notepad-textarea::placeholder{color:var(--ink-soft);}
+  .notepad-label{font-size:13px;color:var(--ink-soft);margin-bottom:8px;}
+
   .empty{text-align:center;color:var(--ink-soft);font-size:14px;padding:28px 10px;}
 
   .add-campaign-form{display:flex;gap:8px;margin-bottom:14px;}
@@ -317,6 +326,8 @@ let loaded = false;
 let searchQuery = '';
 let showAddCampaignForm = false;
 let showAddPersonForm = false;
+let showNotepad = false;
+let notesSaveTimer = null;
 let editingTarget = false;
 let editingPersonId = null;
 let showStats = false;
@@ -349,13 +360,17 @@ function defaultData(){
     campaigns: [{ id: campaignId, amount: 50000 }],
     activeCampaignId: campaignId,
     people: people,
-    payments: { [campaignId]: {} }
+    payments: { [campaignId]: {} },
+    notes: ''
   };
 }
 
 // Eski (bitta to'lov turli) formatdagi ma'lumotni yangi (bir nechta tur) formatga o'tkazish
 function migrate(old){
-  if(old && old.campaigns) return old;
+  if(old && old.campaigns){
+    if(typeof old.notes !== 'string') old.notes = '';
+    return old;
+  }
   if(old && old.people){
     const campaignId = 'c1';
     const payments = { [campaignId]: {} };
@@ -366,7 +381,8 @@ function migrate(old){
       campaigns: [{ id: campaignId, amount: old.target || 0 }],
       activeCampaignId: campaignId,
       people: (old.people || []).map(p => ({ id: p.id, name: p.name })),
-      payments: payments
+      payments: payments,
+      notes: ''
     };
   }
   return defaultData();
@@ -488,6 +504,18 @@ function startEditTarget(){ editingTarget = true; render(); }
 function confirmTarget(){
   const input = document.getElementById('targetInput');
   setTarget(input.value);
+}
+
+function toggleNotepad(){
+  haptic('light');
+  showNotepad = !showNotepad;
+  render();
+}
+
+function onNotesInput(val){
+  data.notes = val;
+  if(notesSaveTimer) clearTimeout(notesSaveTimer);
+  notesSaveTimer = setTimeout(() => { saveData(); }, 700);
 }
 
 function toggleAddPersonForm(){
@@ -796,6 +824,9 @@ function render(){
         <button class="icon-btn ${showStats ? 'on' : ''}" onclick="toggleStats()" title="Umumiy hisobot" aria-label="Umumiy hisobot">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
         </button>
+        <button class="icon-btn ${showNotepad ? 'on' : ''}" onclick="toggleNotepad()" title="Bloknot" aria-label="Bloknot">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/><path d="M9 13h6M9 17h6"/></svg>
+        </button>
         <button class="icon-btn" onclick="shareUnpaid()" title="To'lamaganlarni ulashish" aria-label="Ulashish">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v14"/></svg>
         </button>
@@ -804,6 +835,13 @@ function render(){
         </button>
       </div>
     </header>
+
+    ${showNotepad ? `
+      <div class="card">
+        <div class="notepad-label">Bloknot</div>
+        <textarea class="notepad-textarea" placeholder="Eslatmalar yozing..." oninput="onNotesInput(this.value)">${escapeHtml(data.notes || '')}</textarea>
+      </div>
+    ` : ''}
 
     ${statsHtml}
 
@@ -865,6 +903,10 @@ function render(){
         if(e.key === 'Escape') cancelEditPerson();
       });
     }
+  }
+  if(showNotepad){
+    const ta = document.querySelector('.notepad-textarea');
+    if(ta) ta.focus();
   }
 }
 
